@@ -4,6 +4,8 @@ module.exports = {
             ...config.resolve.fallback,
 
             fs: false,
+            output: "export",
+            basePath: "/AssignStudentList",
         };
 
         return config;
