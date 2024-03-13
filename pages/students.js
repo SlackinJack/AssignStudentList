@@ -1,11 +1,49 @@
 import Head from "next/head";
 import Image from "next/image";
 import Layout from "@/components/layout";
-import { useForm } from "react-hook-form";
+import React, { useState, useEffect } from 'react';
 
 
 export default function Students() {
-    const { register } = useForm();
+    const [name, setName] = useState("");
+    const [dob, setDOB] = useState("");
+    const [errors, setErrors] = useState({});
+    const [isValid, setIsValid] = useState(false);
+
+    useEffect(() => {
+        checkForm();
+    }, [name, dob]);
+
+    const checkForm = () => {
+        let errors = {};
+
+        if (!name) {
+            errors.name = "Name is required.";
+        } else if (!/\S+\ \S+/.test(name)) {
+            errors.name = "Name should be in the format of: 'FirstName LastName'";
+        }
+
+        if (!dob) {
+            errors.dob = "Date of birth is invalid.";
+        }
+
+        setErrors(errors);
+        setIsValid(Object.keys(errors).length == 0);
+    }
+
+    const submitForm = () => {
+        if (isValid) {
+            console.log("Form has passed validation.");
+        } else {
+            console.log("Tried to submit an invalid form!");
+        }
+    }
+
+    const styles = {
+        error: {
+            color: "red"
+        }
+    }
     return (
         <Layout>
             <Head>
@@ -165,10 +203,7 @@ export default function Students() {
                         <h1 class="text-2xl font-bold title-font mb-4 text-gray-900 tracking-widest">Add New Student</h1>
                     </div>
                     <div class="max-w-lg mx-auto">
-                        <form
-                            id="new-student-form"
-                            class="mb-6"
-                        >
+                        <form id="new-student-form" class="mb-6">
                             <div class="mb-4">
                                 <label for="student-name" class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
                                 <input
@@ -176,14 +211,13 @@ export default function Students() {
                                     id="student-name"
                                     name="student-name"
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                    {...register("student-name", {
-                                        required: {
-                                            value: true,
-                                            pattern: /^[a-zA-Z]{1,}\ [a-zA-Z]{1,}$/,
-                                        },
-                                    })}
+                                    placeholder="Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    style={styles.name}
                                 />
                             </div>
+                            {errors.name && <p style={styles.error}>{errors.name}</p>}
                             <div class="mb-4">
                                 <label for="date-of-birth" class="block text-gray-700 text-sm font-bold mb-2">Date of Birth:</label>
                                 <input
@@ -191,14 +225,12 @@ export default function Students() {
                                     id="date-of-birth"
                                     name="date-of-birth"
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                    {...register("date-of-birth", {
-                                        required: {
-                                            value: true,
-                                            message: "This field is required.",
-                                        },
-                                    })}
+                                    value={dob}
+                                    onChange={(e) => setDOB(e.target.value)}
+                                    style={styles.dob}
                                 />
                             </div>
+                            {errors.dob && <p style={styles.error}>{errors.dob}</p>}
                             <div class="mb-6">
                                 <label for="current-grade" class="block text-gray-700 text-sm font-bold mb-2">Current Grade:</label>
                                 <select id="current-grade" name="current-grade" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
@@ -209,13 +241,15 @@ export default function Students() {
                                 </select>
                             </div>
                             <div class="flex items-center justify-center">
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Add Student</button>
+                                <button
+                                    disabled={!isValid}
+                                    onClick={submitForm}
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Add Student</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </section>
-
         </Layout>
     )
 }
